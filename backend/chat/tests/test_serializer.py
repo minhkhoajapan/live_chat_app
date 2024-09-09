@@ -40,3 +40,28 @@ def test_message_deserialization(request, message, room_name, sender_name, user_
     assert message_instance.sender == user
     assert message_instance.room_name == room_name
 
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "message, room_name, sender_name, user_fixture",
+    [
+        ("Hello", "room1", "testuser", "test_user"),
+        ("Hi friend", "room2", "anotheruser", "another_user"),
+        ("Hi again", "room3", "testuser", "test_user")
+    ],
+)
+def test_message_serialization(request, message, room_name, sender_name, user_fixture):
+    user: User = request.getfixturevalue(user_fixture)
+    
+    message_instance = Message.objects.create(
+        message=message,
+        room_name=room_name,
+        sender=user,
+    )
+
+    serializer = MessageSerializer(message_instance)
+    data = serializer.data
+
+    assert data['message'] == message
+    assert data['room_name'] == room_name
+    assert data['sender'] == sender_name
+    assert 'timestamp' in data
