@@ -8,7 +8,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['message', 'sender', 'sender_name' 'room_name', 'timestamp']
+        fields = ['message', 'sender', 'sender_name', 'room_name', 'timestamp']
     
     def create(self, validated_data):
         sender_name = validated_data.pop('sender_name')
@@ -18,5 +18,5 @@ class MessageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'sender_name: User with this username does not exist'})
 
         validated_data['sender'] = sender
-        return super.create(validated_data)
+        return super().create(validated_data)
 
