@@ -42,7 +42,7 @@ const Chatroom = () => {
       const message = messageInputRef.current.value
       chatSocket.current.send(JSON.stringify({
         'message': message,
-        'sender_name': localSender
+        'sender_username': localSender
       }))
       messageInputRef.current.value = ""
 
@@ -60,7 +60,7 @@ const Chatroom = () => {
         <div className="bg-gray-200 flex-1 overflow-y-scroll">
           <div class="px-4 py-2" ref={chatLogRef}>
           {messages.map((msg, index) => (
-          <div key={index} className={`mb-2 ${msg.sender_name === localSender ? 'flex justify-end' : 'flex items-center'}`}>
+          <div key={index} className={`mb-2 ${msg.sender.username === localSender ? 'flex justify-end' : 'flex items-center'}`}>
           {msg.sender !== localSender && (
           <>
             <div className="font-medium mr-2">{msg.sender}</div>
