@@ -63,5 +63,5 @@ def test_message_serialization(request, message, room_name, sender_name, user_fi
 
     assert data['message'] == message
     assert data['room_name'] == room_name
-    assert data['sender'] == sender_name
+    assert data['sender_name'] == sender_name
     assert 'timestamp' in data
