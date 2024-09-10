@@ -19,7 +19,7 @@ const Chatroom = () => {
 
       chatSocket.current.onmessage = (e) => {
         const data = JSON.parse(e.data)
-        console.log(data)
+        console.log("Hello this is data: ",data)
         setMessages(prevMessages => [...prevMessages, data])
       }
 
@@ -61,15 +61,15 @@ const Chatroom = () => {
           <div class="px-4 py-2" ref={chatLogRef}>
           {messages.map((msg, index) => (
           <div key={index} className={`mb-2 ${msg.sender.username === localSender ? 'flex justify-end' : 'flex items-center'}`}>
-          {msg.sender !== localSender && (
+          {msg.sender.username !== localSender && (
           <>
-            <div className="font-medium mr-2">{msg.sender}</div>
+            <div className="font-medium mr-2">{msg.sender.username}</div>
             <div className="bg-white rounded-lg p-2 shadow max-w-sm">
               {msg.message}
             </div>
           </>
           )}
-          {msg.sender === localSender && (
+          {msg.sender.username === localSender && (
           <div className="bg-blue-500 text-white rounded-lg p-2 shadow max-w-sm">
             {msg.message}
           </div>

@@ -2,6 +2,7 @@ import json
 
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from chat.serializers import MessageSerializer
+from channels.db import database_sync_to_async
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
@@ -19,31 +20,39 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     #Receive message from websocket
     async def receive(self, text_data):
         text_data_jason = json.loads(text_data)
+        print(text_data_jason)
         message = text_data_jason["message"]
-        sender_name = text_data_jason.get("sender_name", "Anonymous")
+        sender_username = text_data_jason.get("sender_username", "Anonymous")
         room_name = self.room_name
-
-        self.update_message_db(message=message, sender_name=sender_name, room_name=room_name)
+        
+        message_serializer = await self.update_message_db(message, sender_username, room_name)
+        data = message_serializer.data
 
         #Send message to room group
         await self.channel_layer.group_send(
-            self.room_group_name, {"type": "chat.message", "message": message, "sender_name": sender_name, "room_name": room_name}
+            self.room_group_name, {"type": "chat.message", "data": data}
         )
  
     async def chat_message(self, event):
-        message = event["message"]
-        sender = event["sender_name"]
-        room_name = event["room_name"]
-
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({"message": message, "sender_name": sender, "room_name": room_name}))
+        data = event["data"]
+        # Send message to WebSocket 
+        await self.send(text_data=json.dumps({**data}))
     
-    def update_message_db(self, message, sender_name, room_name):
+    async def update_message_db(self, message, sender_username, room_name) -> MessageSerializer:
+        message_serializer = await database_sync_to_async(self._update_message_db_helper)(message, sender_username, room_name)
+        return message_serializer
+
+    def _update_message_db_helper(self, message, sender_username, room_name) -> MessageSerializer:
         message_serializer = MessageSerializer(data= {
             "message": message,
-            "sender_name": sender_name,
+            "sender_username": sender_username,
             "room_name": room_name
         })
 
         if message_serializer.is_valid():
             message_serializer.save()
+        else:
+            raise ValueError("Invalid data for message serializer")
+        
+        return message_serializer
+    
