@@ -3,12 +3,14 @@ from .models import Message
 from django.contrib.auth.models import User
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = serializers.CharField(source='sender.username', read_only = True)
-    sender_name = serializers.CharField(write_only = True)
+    sender_name = serializers.CharField()
 
     class Meta:
         model = Message
-        fields = ['message', 'sender', 'sender_name', 'room_name', 'timestamp']
+        fields = ['message', 'sender', 'sender_name' 'room_name', 'timestamp']
+        extra_kwargs = {
+            'sender': {'write_only': True}
+        }
     
     def create(self, validated_data):
         sender_name = validated_data.pop('sender_name')
