@@ -7,3 +7,4 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     room_name = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
+
