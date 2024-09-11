@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import api from "../api.js"
 
 const Chatroom = () => {
     const {roomName} = useParams()
@@ -17,9 +18,12 @@ const Chatroom = () => {
         `ws://${baseURL}/ws/chat/${roomName}/`
       )
 
+      preloadingMessages().catch() 
+
+      chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight
+
       chatSocket.current.onmessage = (e) => {
         const data = JSON.parse(e.data)
-        console.log("Hello this is data: ",data)
         setMessages(prevMessages => [...prevMessages, data])
       }
 
@@ -33,10 +37,16 @@ const Chatroom = () => {
 
     }, [roomName])
 
-    //scroll the chat to the bottom
-    useEffect(() => {
-      chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight
-    }, [messages])
+    const preloadingMessages = async () => {
+      try {
+        const res = await api.get(`/api/load/messages/${roomName}/`)
+        if (res.status === 200) {
+          setMessages(res.data)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
 
     const handleSendMessage = (e) => {
       const message = messageInputRef.current.value

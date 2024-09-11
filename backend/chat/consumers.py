@@ -3,6 +3,7 @@ import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from chat.serializers import MessageSerializer
 from channels.db import database_sync_to_async
+from chat.models import Message
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
@@ -20,13 +21,16 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     #Receive message from websocket
     async def receive(self, text_data):
         text_data_jason = json.loads(text_data)
-        print(text_data_jason)
+        #print(text_data_jason)
         message = text_data_jason["message"]
         sender_username = text_data_jason.get("sender_username", "Anonymous")
         room_name = self.room_name
         
         message_serializer = await self.update_message_db(message, sender_username, room_name)
         data = message_serializer.data
+
+        #all_messages_data = await self.get_all_messages_for_room(room_name)
+        #print(all_messages_data)
 
         #Send message to room group
         await self.channel_layer.group_send(
@@ -56,3 +60,13 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         
         return message_serializer
     
+    # async def get_all_messages_for_room(self, room_name):
+    #     all_messages_data = await database_sync_to_async(self._get_all_messages_for_room_helper)(room_name)
+    #     return all_messages_data
+
+
+    # def _get_all_messages_for_room_helper(self, room_name):
+    #     room_messages_object_list = Message.objects.filter(room_name=room_name)
+    #     all_messages_serializer = MessageSerializer(room_messages_object_list, many=True)
+
+    #     return all_messages_serializer.data
