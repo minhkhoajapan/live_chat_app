@@ -5,6 +5,8 @@ from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
+from chat.models import ChatRoom
+from chat.serializers import ChatRoomSerializer
 
 @pytest.fixture
 def authorized_client() -> APIClient:
@@ -37,3 +39,46 @@ def test_create_chat_room_success(authorized_client,room_name, password):
     response: Response = authorized_client.post(url, data=data)
 
     assert response.status_code == status.HTTP_201_CREATED
+    assert 'password' not in response.data
+    assert response.data['room_name'] == room_name
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "room_name, password",
+    [
+        ("topscret", "gaypassword123"),
+        ("agents of shields", "marvel123!"),
+        ("the_Illuminati", "ruletheworl2435")
+    ],
+)
+def test_create_chat_room_fail(authorized_client, room_name, password):
+    url = reverse('create_chat_room')
+    data = {
+        'password': password
+    }
+    response: Response = authorized_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "room_name, password",
+    [
+        ("topscret", "gaypassword123"),
+        ("agents of shields", "marvel123!"),
+        ("the_Illuminati", "ruletheworl2435")
+    ],
+)
+def test_create_repeated_room_fail(authorized_client, room_name, password):
+    url = reverse('create_chat_room')
+    data = {
+        'room_name': room_name,
+        'password': password
+    }
+
+    serializer = ChatRoomSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+    response: Response = authorized_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
