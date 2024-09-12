@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Message
+from .models import Message, ChatRoom
 from django.contrib.auth.models import User
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -31,3 +31,17 @@ class MessageSerializer(serializers.ModelSerializer):
         }
 
         return representation
+
+class ChatRoomSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = ChatRoom
+        fields = ['room_name', 'password']
+    
+    def create(self, validated_data):
+        raw_password = validated_data.pop('password')
+        chat_room = ChatRoom(**validated_data)
+        chat_room.set_password(raw_password)
+        chat_room.save()
+        return chat_room
