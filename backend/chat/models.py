@@ -12,6 +12,7 @@ class Message(models.Model):
 class ChatRoom(models.Model):
     room_name = models.CharField(max_length=255, null=False, unique=True)
     password = models.CharField(max_length=128)
+    authenticated_member = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
