@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from .serializers import UserSerializer
-from chat.models import Message
+from chat.models import Message, ChatRoom
 from chat.serializers import MessageSerializer, ChatRoomSerializer
 from django.db import IntegrityError
 
@@ -30,3 +30,24 @@ class CreatChatRoomView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserInChatRoomValidation(APIView):
+    def post(self, request):
+        username = request.data['username']
+        room_name = request.data['room_name']
+        
+        try:
+            user: User = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"detail": "This user does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+    
+        try:
+            chat_room: ChatRoom = ChatRoom.objects.get(room_name=room_name)
+        except ChatRoom.DoesNotExist:
+            return Response({"detail": "This chat room does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if chat_room.authenticated_member.filter(id=user.id).exists():
+            return Response({"detail": "This user is in the chat_room."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "This user is not in the chat room."}, status=status.HTTP_401_UNAUTHORIZED)
+        
