@@ -38,6 +38,11 @@ def test_create_chat_room_success(authorized_client, room_name, password, userna
         'usernames': usernames
     }
     response: Response = authorized_client.post(url, data=data)
+    chat_room = ChatRoom.objects.get(room_name=room_name)
+
+    users = [User.objects.get(username=username) for username in usernames]
+    for user in users:
+        assert user in chat_room.authenticated_member.all()
 
     assert response.status_code == status.HTTP_201_CREATED
     assert 'password' not in response.data
