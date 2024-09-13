@@ -23,18 +23,19 @@ def authorized_client() -> APIClient:
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "room_name, password",
+    "room_name, password, usernames",
     [
-        ("topscret", "gaypassword123"),
-        ("agents of shields", "marvel123!"),
-        ("the_Illuminati", "ruletheworl2435")
+        ("topscret", "gaypassword123", ["randomuser"]),
+        ("agents of shields", "marvel123!", ["randomuser"]),
+        ("the_Illuminati", "ruletheworl2435", ["randomuser"])
     ],
 )
-def test_create_chat_room_success(authorized_client,room_name, password):
+def test_create_chat_room_success(authorized_client, room_name, password, usernames):
     url = reverse('create_chat_room')
     data = {
         'room_name': room_name,
-        'password': password
+        'password': password,
+        'usernames': usernames
     }
     response: Response = authorized_client.post(url, data=data)
 
