@@ -50,4 +50,25 @@ class UserInChatRoomValidation(APIView):
             return Response({"detail": "This user is in the chat room."}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "This user is not in the chat room."}, status=status.HTTP_401_UNAUTHORIZED)
+
+class JoinChatRoom(APIView):
+    def post(self, request):
+        username = request.data['username']
+        room_name = request.data['room_name']
+        password = request.data['password']
+
+        try:
+            user: User = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"detail": "This user does not exist."}, status=status.HTTP_400_BAD_REQUEST)
         
+        try:
+            chat_room: ChatRoom = ChatRoom.objects.get(room_name=room_name)
+        except ChatRoom.DoesNotExist:
+            return Response({"detail": "This chat room does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if chat_room.verify_password(password):
+            chat_room.authenticated_member.add([user])
+            return Response({"detail": "Chat room authentication succeed."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Chat room authentication failed."}, status=status.HTTP_401_UNAUTHORIZED)
