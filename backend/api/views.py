@@ -68,7 +68,7 @@ class JoinChatRoom(APIView):
             return Response({"detail": "This chat room does not exist."}, status=status.HTTP_400_BAD_REQUEST)
         
         if chat_room.verify_password(password):
-            chat_room.authenticated_member.add([user])
+            chat_room.authenticated_member.add(user)
             return Response({"detail": "Chat room authentication succeed."}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Chat room authentication failed."}, status=status.HTTP_401_UNAUTHORIZED)
