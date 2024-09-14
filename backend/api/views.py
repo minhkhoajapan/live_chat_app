@@ -47,7 +47,7 @@ class UserInChatRoomValidation(APIView):
             return Response({"detail": "This chat room does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
         if chat_room.authenticated_member.filter(id=user.id).exists():
-            return Response({"detail": "This user is in the chat_room."}, status=status.HTTP_200_OK)
+            return Response({"detail": "This user is in the chat room."}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "This user is not in the chat room."}, status=status.HTTP_401_UNAUTHORIZED)
         
