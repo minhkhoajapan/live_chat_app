@@ -35,3 +35,5 @@ function ProtectedChatRoom({children}) {
     return haveAccess ? children : <Navigate to="/" />
 
 }
+
+export default ProtectedChatRoom
