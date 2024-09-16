@@ -10,34 +10,49 @@ const Home = () => {
     const navigate = useNavigate()
 
     const handleSubmit = (e) => {
-        e.preventDefault()
-        if (searchValue === "logout") {
-            localStorage.clear()
-            navigate("/login")
-        } else {
-            navigate(`/chat/${roomName}`) 
-        }
+      e.preventDefault()
+      if (searchValue === "logout") {
+        localStorage.clear()
+        navigate("/login")
+      } else {
+        navigate(`/chat/${roomName}`) 
+      }
     }
 
     const handleCreateRoom = async (e) => {
-        try {
-            const res = await api.post("/api/create/chatroom/", {
-                'room_name': roomName,
-                'password': roomPassWord,
-                'usernames': [localUser]
-            })
-            if (res.status === 201) {
-                navigate(`/chat/${roomName}`)
-            }
-        } catch (error) {
-            console.log(error)
+      try {
+        const res = await api.post("/api/create/chatroom/", {
+          'room_name': roomName,
+          'password': roomPassWord,
+          'usernames': [localUser],
+        })
+        if (res.status === 201) {
+          navigate(`/chat/${roomName}`)
         }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    const handleJoinRoom = async (e) => {
+      try {
+        const res = await api.post("/api/join/chatroom/", {
+          'room_name': roomName,
+          'password': roomPassWord,
+          'username': localUser,
+        })
+        if (res.status === 200) {
+          navigate(`/chat/${roomName}`)
+        }
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     const handleKeyUp = (e) => {
-        if (e.keyCode === 13) {
-            handleSubmit()
-        }
+      if (e.keyCode === 13) {
+        handleSubmit()
+      }
     }
 
     return (
@@ -64,6 +79,8 @@ const Home = () => {
               <button
                 type="submit"
                 className="bg-gray-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
+                onClick={handleJoinRoom}
+                onKeyUp={handleKeyUp}
               >
                 Join
               </button>
