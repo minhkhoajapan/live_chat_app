@@ -72,3 +72,21 @@ class JoinChatRoom(APIView):
             return Response({"detail": "Chat room authentication succeed."}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Chat room authentication failed."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+class ExitChatRoom(APIView):
+    def post(self, request):
+        username = request.data['username']
+        room_name = request.data['room_name']
+
+        try:
+            user: User = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'detail': 'This user does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            chat_room: ChatRoom = ChatRoom.objects.get(room_name=room_name)
+        except ChatRoom.DoesNotExist:
+            return Response({'detail': 'This chat room does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        chat_room.authenticated_member.remove(user)
+        return Response({'detail': 'user exited the chat room.'}, status=status.HTTP_200_OK)
