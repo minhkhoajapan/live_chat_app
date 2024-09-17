@@ -8,7 +8,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['message', 'sender', 'sender_username', 'room_name', 'timestamp']
+        fields = ['message', 'sender', 'sender_username', 'room_name', 'timestamp', 'file']
         extra_kwargs = {
             'sender': {'read_only': True}
         }
