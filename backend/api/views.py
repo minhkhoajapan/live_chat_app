@@ -8,6 +8,8 @@ from .serializers import UserSerializer
 from chat.models import Message, ChatRoom
 from chat.serializers import MessageSerializer, ChatRoomSerializer
 from django.db import IntegrityError
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 # Create your views here.
 class CreateUserView(generics.CreateAPIView):
@@ -90,3 +92,28 @@ class ExitChatRoom(APIView):
         
         chat_room.authenticated_member.remove(user)
         return Response({'detail': 'user exited the chat room.'}, status=status.HTTP_200_OK)
+
+class UploadFile(APIView):
+    def post(self, request):
+        if request.FILES['file']:
+            file = request.FILES['file']
+            message_serializer = MessageSerializer(data={
+                'file': file,
+                'room_name': request.data['room_name'],
+                'sender_username': request.data['sender_username'],
+            })
+            if message_serializer.is_valid():
+                message_serializer.save()
+                room_group_name = f"chat_{request.data['room_name']}"
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    room_group_name, {
+                        "type": "chat.message",
+                        "data": message_serializer.data,
+                    }
+                )
+                return Response(message_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(message_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'detail': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
