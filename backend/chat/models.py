@@ -4,7 +4,8 @@ from django.contrib.auth.hashers import make_password, check_password
 
 # Create your models here.
 class Message(models.Model):
-    message = models.TextField(null=False)
+    message = models.TextField(blank=True, null=True)
+    file = models.FileField(upload_to='files/', blank=True, null=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     room_name = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
