@@ -6,6 +6,7 @@ const Chatroom = () => {
     const {roomName} = useParams()
     const navigate = useNavigate()
     const [messages, setMessages] = useState([])
+    const [selectedFile, setSelectedFile] = useState(null)
     const chatLogRef = useRef(null)
     const messageInputRef = useRef(null)
     const chatSocket = useRef(null)
@@ -64,6 +65,14 @@ const Chatroom = () => {
       messageInputRef.current.value = ""
     }
 
+    const handleFileChange = (e) => {
+      setSelectedFile(e.target.files[0])
+    }
+
+    const handleSendFile = (e) => {
+
+    }
+
     const handleKeyUp = (e) => {
       if (e.keyCode === 13) {
         handleSendMessage()
@@ -73,6 +82,7 @@ const Chatroom = () => {
     const handleExitButton = (e) => {
       navigate("/")
     }
+
 
     return (
       <>
@@ -110,11 +120,25 @@ const Chatroom = () => {
          ))}
           </div>
         </div>
+        {/* Message input and send buttons */}
         <div className="bg-gray-100 px-4 py-2">
           <div className="flex items-center">
-            <input className="w-full border rounded-full py-2 px-4 mr-2" type="text" ref={messageInputRef} onKeyUp={handleKeyUp} />
+            <input className="w-5/6 border rounded-full py-2 px-4 mr-2" type="text" ref={messageInputRef} onKeyUp={handleKeyUp} />
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full" onClick={handleSendMessage} >
               Send
+            </button>
+
+            {/* File upload button */}
+            <input type="file" id="fileInput" style={{display: 'none'}} onChange={handleFileChange} />
+            <label htmlFor="fileInput" className="bg-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-full mr-2 cursor-pointer">
+              Choose File
+            </label>
+            <button
+              className="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-full"
+              onClick={handleSendFile}
+              disabled={!selectedFile}
+            >
+              Send File
             </button>
           </div>
         </div>
