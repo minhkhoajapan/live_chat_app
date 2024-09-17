@@ -27,8 +27,15 @@ const Chatroom = () => {
         setMessages(prevMessages => [...prevMessages, data])
       }
 
-      chatSocket.current.onclose = (e) => {
-        console.error('Chat socket closed unexpectedly')
+      chatSocket.current.onclose = async (e) => {
+        try {
+          await api.post("/api/exit/chatroom/", {
+            'username': localSender,
+            'room_name': roomName,
+          })
+        } catch (error) {
+          console.log('Error exiting chat room:', error)
+        }
       }
 
       return () => {
@@ -55,18 +62,33 @@ const Chatroom = () => {
         'sender_username': localSender
       }))
       messageInputRef.current.value = ""
-
     }
 
     const handleKeyUp = (e) => {
-        if (e.keyCode === 13) {
-            handleSendMessage()
-        }
+      if (e.keyCode === 13) {
+        handleSendMessage()
+      }
+    }
+
+    const handleExitButton = (e) => {
+      navigate("/")
     }
 
     return (
       <>
       <div className="h-screen flex flex-col">
+        {/* ChatRoom Header */}
+        <div className="bg-gray-800 text-white px-4 py-2 flex items-center">
+          {/* Left arrow icon */}
+          <button className="mr-4" onClick={handleExitButton}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          <h1 className="text-xl font-bold">{roomName}</h1>
+        </div>
+
+        {/* Chat message Area */}
         <div className="bg-gray-200 flex-1 overflow-y-scroll">
           <div class="px-4 py-2" ref={chatLogRef}>
           {messages.map((msg, index) => (
