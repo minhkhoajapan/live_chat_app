@@ -26,6 +26,7 @@ const Chatroom = () => {
       chatSocket.current.onmessage = (e) => {
         const data = JSON.parse(e.data)
         setMessages(prevMessages => [...prevMessages, data])
+        console.log(data)
       }
 
       chatSocket.current.onclose = async (e) => {
@@ -69,8 +70,22 @@ const Chatroom = () => {
       setSelectedFile(e.target.files[0])
     }
 
-    const handleSendFile = (e) => {
-
+    const handleSendFile = async (e) => {
+      if (!selectedFile) return
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      formData.append('sender_username', localSender)
+      formData.append('room_name', roomName)
+      
+      try {
+        res = api.post("/api/upload/media/chatroom/", formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        })
+      } catch (error) {
+        console.error("File upload failed:", error);
+      }
     }
 
     const handleKeyUp = (e) => {
@@ -107,13 +122,19 @@ const Chatroom = () => {
           <>
             <div className="font-medium mr-2">{msg.sender.username}</div>
             <div className="bg-white rounded-lg p-2 shadow max-w-sm">
-              {msg.message}
+              {msg.message && msg.message}
+              {msg.file && (
+                <img className="max-w-72 min-w-8" src={`http://${baseURL}${msg.file}`} />
+              )}
             </div>
           </>
           )}
           {msg.sender.username === localSender && (
           <div className="bg-blue-500 text-white rounded-lg p-2 shadow max-w-sm">
-            {msg.message}
+            {msg.message && msg.message}
+            {msg.file && (
+              <img className="max-w-72 min-w-8" src={`http://${baseURL}${msg.file}`} />
+            )}
           </div>
         )}
         </div>
