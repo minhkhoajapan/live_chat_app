@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from "../api.js"
+import LocalSenderChat from './LocalSenderChat.jsx';
+import OtherSenderChat from './OtherSenderChat.jsx';
 
 const Chatroom = () => {
     const {roomName} = useParams()
@@ -119,24 +121,11 @@ const Chatroom = () => {
           {messages.map((msg, index) => (
           <div key={index} className={`mb-2 ${msg.sender.username === localSender ? 'flex justify-end' : 'flex items-center'}`}>
           {msg.sender.username !== localSender && (
-          <>
-            <div className="font-medium mr-2">{msg.sender.username}</div>
-            <div className="bg-white rounded-lg p-2 shadow max-w-sm">
-              {msg.message && msg.message}
-              {msg.file && (
-                <img className="max-w-72 min-w-8" src={`http://${baseURL}${msg.file}`} />
-              )}
-            </div>
-          </>
+            <OtherSenderChat msg={msg} />
           )}
           {msg.sender.username === localSender && (
-          <div className="bg-blue-500 text-white rounded-lg p-2 shadow max-w-sm">
-            {msg.message && msg.message}
-            {msg.file && (
-              <img className="max-w-72 min-w-8" src={`http://${baseURL}${msg.file}`} />
-            )}
-          </div>
-        )}
+            <LocalSenderChat msg={msg} />          
+          )}
         </div>
          ))}
           </div>
