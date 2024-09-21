@@ -3,12 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from "../api.js"
 import LocalSenderChat from './LocalSenderChat.jsx';
 import OtherSenderChat from './OtherSenderChat.jsx';
+import ChatMessageKebabMenu from './ChatMessageKebabMenu.jsx';
 
 const Chatroom = () => {
     const {roomName} = useParams()
     const navigate = useNavigate()
     const [messages, setMessages] = useState([])
     const [selectedFile, setSelectedFile] = useState(null)
+    const [activeDropdown, SetActiveDropdow] = useState(null)
     const chatLogRef = useRef(null)
     const messageInputRef = useRef(null)
     const chatSocket = useRef(null)
@@ -100,6 +102,14 @@ const Chatroom = () => {
       navigate("/")
     }
 
+    const toggleDropdown = (index) => {
+      SetActiveDropdow(activeDropdown === index ? null : index)
+    }
+
+    const handleDeleteMessage = (index) => {
+      //add functionality later: Maybe changed the message to a specific format (can pass props to LocalSender/OtherSenderChat to do the format)
+      //maybe write an update api in the backend and broadcast it the every member in the channel group
+    }
 
     return (
       <>
@@ -121,10 +131,28 @@ const Chatroom = () => {
           {messages.map((msg, index) => (
           <div key={index} className={`mb-2 ${msg.sender.username === localSender ? 'flex justify-end' : 'flex items-center'}`}>
           {msg.sender.username !== localSender && (
-            <OtherSenderChat msg={msg} />
+            <>
+              <OtherSenderChat msg={msg} />
+              <ChatMessageKebabMenu 
+                isLocalSender={false}   
+                onToggleDropdown={toggleDropdown}
+                isActive={activeDropdown===index}
+                index={index}
+                onDeleteMessage={handleDeleteMessage}
+              />
+            </>
           )}
           {msg.sender.username === localSender && (
-            <LocalSenderChat msg={msg} />          
+            <>
+              <ChatMessageKebabMenu 
+                isLocalSender={true}
+                onToggleDropdown={toggleDropdown}
+                isActive={activeDropdown===index}
+                index={index}
+                onDeleteMessage={handleDeleteMessage}
+              />  
+              <LocalSenderChat msg={msg} />        
+            </> 
           )}
         </div>
          ))}
