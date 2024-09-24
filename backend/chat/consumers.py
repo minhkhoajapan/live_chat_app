@@ -20,8 +20,15 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     #Receive message from websocket
     async def receive(self, text_data):
+
         text_data_jason = json.loads(text_data)
-        #print(text_data_jason)
+        if 'message_deleted' in text_data_jason:
+            message_id = text_data_jason['message_deleted']
+            await self.channel_layer.group_send(
+                self.room_group_name, {"type": "message.deleted", "message_id": message_id}
+            )
+            return
+
         message = text_data_jason["message"]
         sender_username = text_data_jason.get("sender_username", "Anonymous")
         room_name = self.room_name
@@ -29,10 +36,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         message_serializer = await self.update_message_db(message, sender_username, room_name)
         data = message_serializer.data
 
-        #all_messages_data = await self.get_all_messages_for_room(room_name)
-        #print(all_messages_data)
-
-        #Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name, {"type": "chat.message", "data": data}
         )
@@ -41,6 +44,12 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         data = event["data"]
         # Send message to WebSocket 
         await self.send(text_data=json.dumps({**data}))
+
+    async def message_deleted(self, event):
+        message_id = event["message_id"]
+        await self.send(text_data=json.dumps({
+            'message_deleted': message_id,
+        }))
     
     async def update_message_db(self, message, sender_username, room_name) -> MessageSerializer:
         message_serializer = await database_sync_to_async(self._update_message_db_helper)(message, sender_username, room_name)
