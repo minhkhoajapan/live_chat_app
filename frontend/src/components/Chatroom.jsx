@@ -107,17 +107,16 @@ const Chatroom = () => {
     }
 
     const handleDeleteMessage = async (index) => {
-      //add functionality later: Maybe changed the message to a specific format (can pass props to LocalSender/OtherSenderChat to do the format)
       const messageId = messages[index].id
       try {
         const res = await api.delete(`/api/delete/message/${messageId}/`)
         if (res.status === 204) {
           setMessages(prevMessages => prevMessages.filter(msg => msg.id != messageId))
+          //currently it only affects local sender's UI
         }
       } catch (error) {
         console.log(error)
       }
-      //maybe write an update api in the backend and broadcast it the every member in the channel group
     }
 
     return (
