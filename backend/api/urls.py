@@ -8,5 +8,5 @@ urlpatterns = [
     path("join/chatroom/", JoinChatRoom.as_view(), name="join_chat_room"),
     path("exit/chatroom/", ExitChatRoom.as_view(), name='exit_chat_room'),
     path("upload/media/chatroom/", UploadFile.as_view(), name='upload_file_chat_room'),
-    path("delete/message/<int:pk>", DeleteMessage.as_view(), name='delete_message'),
+    path("delete/message/<int:pk>/", DeleteMessage.as_view(), name='delete_message'),
 ]
