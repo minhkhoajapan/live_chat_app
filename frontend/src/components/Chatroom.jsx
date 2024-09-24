@@ -29,8 +29,12 @@ const Chatroom = () => {
 
       chatSocket.current.onmessage = (e) => {
         const data = JSON.parse(e.data)
-        setMessages(prevMessages => [...prevMessages, data])
-        console.log(data)
+        if (data.message_deleted) {
+          setMessages(prevMessages => prevMessages.filter(msg => msg.id != data.message_deleted))
+        } else {
+          setMessages(prevMessages => [...prevMessages, data])
+          console.log(data)
+        }
       }
 
       chatSocket.current.onclose = async (e) => {
@@ -111,8 +115,10 @@ const Chatroom = () => {
       try {
         const res = await api.delete(`/api/delete/message/${messageId}/`)
         if (res.status === 204) {
-          setMessages(prevMessages => prevMessages.filter(msg => msg.id != messageId))
-          //currently it only affects local sender's UI
+          //broadcast the delete to the whole group
+          chatSocket.current.send(JSON.stringify({
+            'message_deleted': messageId,
+          }))
         }
       } catch (error) {
         console.log(error)
