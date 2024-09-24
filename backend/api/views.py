@@ -117,3 +117,10 @@ class UploadFile(APIView):
                 return Response(message_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'detail': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+class DeleteMessage(APIView):
+    def delete(self, request, pk, format=None):
+        try:
+            message = Message.objects.get(pk=pk)
+        except Message.DoesNotExist:
+            return Response({'detail': 'messeage does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
