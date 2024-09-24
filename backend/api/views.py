@@ -119,8 +119,14 @@ class UploadFile(APIView):
             return Response({'detail': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class DeleteMessage(APIView):
-    def delete(self, request, pk, format=None):
+    def delete(self, request, pk):
         try:
             message = Message.objects.get(pk=pk)
         except Message.DoesNotExist:
             return Response({'detail': 'messeage does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.user != message.sender:
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        message.delete()
+        return Response({'detail': 'message successfullt deleted.'}, status=status.HTTP_204_NO_CONTENT)
