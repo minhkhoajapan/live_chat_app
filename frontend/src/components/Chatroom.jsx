@@ -14,7 +14,7 @@ const Chatroom = () => {
     const chatLogRef = useRef(null)
     const messageInputRef = useRef(null)
     const chatSocket = useRef(null)
-    const baseURL = "localhost:8000"
+    const baseURL = "live-chat-app-minh-khoa-0b52e2a47843.herokuapp"
     const localSender = localStorage.getItem("username")
 
     useEffect(() => {
