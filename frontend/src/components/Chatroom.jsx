@@ -20,7 +20,7 @@ const Chatroom = () => {
     useEffect(() => {
       //Initial chatSocket
       chatSocket.current = new WebSocket(
-        `ws://${baseURL}/ws/chat/${roomName}/`
+        `wss://${baseURL}/ws/chat/${roomName}/`
       )
 
       preloadingMessages().catch() 
