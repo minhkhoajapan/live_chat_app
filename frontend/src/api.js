@@ -1,8 +1,10 @@
 import axios from "axios";
 import {ACCESS_TOKEN} from "./constants.js"
 
+herokuUrl = "https://live-chat-app-minh-khoa-0b52e2a47843.herokuapp.com"
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: herokuUrl,
 })
 
 api.interceptors.request.use(
